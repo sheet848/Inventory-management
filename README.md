@@ -114,3 +114,5 @@ Please file feedback and issues over on the [Supabase GitHub org](https://github
 - Email Auth implemented -> will try Github OAuth
 - Intro first page
 - Sidebar section
+- added dummy data in supabase using SQL
+- called data from serverClient and produced in display in Key metrics
