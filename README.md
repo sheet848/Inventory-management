@@ -116,3 +116,5 @@ Please file feedback and issues over on the [Supabase GitHub org](https://github
 - Sidebar section
 - added dummy data in supabase using SQL
 - called data from serverClient and produced in display in Key metrics
+- Stock Levels
+- Weekly stock added via recharts
