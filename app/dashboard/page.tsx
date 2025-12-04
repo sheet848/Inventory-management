@@ -1,38 +1,14 @@
 import Sidebar from "@/components/ui/sidebar";
 import ProductsChart from "@/components/products-chart";
 import { TrendingUp } from "lucide-react";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function DashboardPage() {
 
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have proxy refreshing
-            // user sessions.
-          }
-        },
-      },
-    },
-  );
+  const supabase = createClient();
 
   // fetch key metrics for dashboard
-  const { data: productsData, error: productsError } = await supabase
+  const { data: productsData, error: productsError } = await (await supabase)
     .from("products")
     .select("price, quantity, low_stock_at");
 
@@ -45,7 +21,7 @@ export default async function DashboardPage() {
   const lowStockCount = productsData.filter(product => product.low_stock_at !== null && product.low_stock_at !== undefined && product.quantity <= product.low_stock_at).length;
 
   // stock levels for top products
-  const { data: topProducts, error: topError } = await supabase
+  const { data: topProducts, error: topError } = await (await supabase)
     .from("products")
     .select("*") // use correct column names
     .order("updated_at", { ascending: false })
