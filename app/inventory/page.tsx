@@ -1,35 +1,12 @@
 import Sidebar from "@/components/ui/sidebar";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function InventoryPage() {
 
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-        {
-            cookies: {
-                getAll() {
-                    return cookieStore.getAll();
-                },
-                setAll(cookiesToSet) {
-                    try {
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            cookieStore.set(name, value, options),
-                        );
-                    } catch {
-                        // The `setAll` method was called from a Server Component.
-                        // This can be ignored if you have proxy refreshing
-                        // user sessions.
-                    }
-                },
-            },
-        },
-    );
+    const supabase = createClient();
 
-    // Fetch all products (you can add .limit() or order here)
-    const { data: products } = await supabase
+    // Fetch all products
+    const { data: Products } = await (await supabase)
         .from("products")
         .select("*")
         .order("created_at", { ascending: false });
@@ -93,7 +70,7 @@ export default async function InventoryPage() {
                             </thead>
 
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {products.map((product, key) => (
+                                {Products.map((product, key) => (
                                     <tr key={key} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             {product.name}
