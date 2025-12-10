@@ -1,15 +1,24 @@
 import Sidebar from "@/components/ui/sidebar";
+import Pagination from "@/components/pagination";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function InventoryPage() {
 
+    const page = 1;
+    const itemsPerPage = 8;
+    const from = (page - 1) * itemsPerPage;
+    const to = from + itemsPerPage - 1;
+
     const supabase = createClient();
 
     // Fetch all products
-    const { data: Products } = await (await supabase)
+    const { data: Products, count } = await (await supabase)
         .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+    const totalPages = Math.ceil((count || 0) / itemsPerPage);  
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -105,6 +114,7 @@ export default async function InventoryPage() {
                             </tbody>
                         </table>
                     </div>
+                        <Pagination page={page} totalPages={totalPages} baseUrl="/inventory" />
                 </div>
             </main>
         </div>
